@@ -5,17 +5,16 @@ set $down j
 set $up k
 set $right l
 set $term kitty
-# Note: pass the final command to swaymsg so that the resulting window can be opened
-# on the original workspace that the command was run on.
 set $menu lofi -r | xargs swaymsg exec --
 exec mako
 
 corner_radius 5
 
-blur off
-blur_xray off
-blur_passes 2
-blur_radius 5
+blur on
+blur_xray enable
+blur_passes 3
+blur_radius 10
+blur_noise 0.25
 
 gaps inner 5
 default_border pixel 2
@@ -26,13 +25,17 @@ shadows_on_csd off
 shadow_blur_radius 20
 shadow_color #0000007F
 
-default_dim_inactive 0.5
+default_dim_inactive 0.1
 dim_inactive_colors.unfocused #000000FF
 dim_inactive_colors.urgent #900000FF
 
 scratchpad_minimize disable
 
-output * bg /home/sveb/Pictures/Wallpapers/winter-mountain-01.png fill
+set $opacity 0.75
+for_window [class=".*"] opacity $opacity
+for_window [app_id="firefox"] opacity 1;
+
+output * bg /home/sveb/Pictures/Wallpapers/galaxy-01.png fill
 
 # target                 title     bg    text   indicator  border
 client.focused           $lavender $base $text  $rosewater $lavender
@@ -70,6 +73,21 @@ client.background        $base
     bindsym $mod+Shift+Down move down
     bindsym $mod+Shift+Up move up
     bindsym $mod+Shift+Right move right
+
+# SHORTCUTS:
+    bindsym Print exec grimshot copy area
+    bindsym XF86AudioRaiseVolume exec pamixer -i 5
+    bindsym XF86AudioLowerVolume exec pamixer -d 5
+
+    bindsym XF86MonBrightnessUp exec light -A 5
+    bindsym XF86MonBrightnessDown exec light -U 5
+
+    bindsym $mod+Alt+l exec swaylock --screenshots --clock --indicator --indicator-radius 100 --indicator-thickness 7 --effect-blur 7x5 --effect-vignette 0.5:0.5 --ring-color bb00cc --key-hl-color 880033 --line-color 00000000 --inside-color 00000088 --separator-color 00000000 --grace 1 --fade-in 0.0
+    bindsym $mod+Alt+o exec /usr/lib/xscreensaver/unknownpleasures   
+    bindsym $mod+o exec pavucontrol
+
+# FLOATING WINDOWS:
+    for_window [app_id="pavucontrol"] floating enable
 
 # WORKSPACES:
     # Switch to workspace
@@ -137,17 +155,15 @@ mode "resize" {
 }
 bindsym $mod+r mode "resize"
 
-# Status Bar:
-bar {
-    position top
-    #status_command while date +'%Y-%m-%d %I:%M:%S %p'; do sleep 1; done
-    status_command while :; do source ~/.config/sway/swaybar.sh ; sleep 1; done 
-
-    colors {
-        statusline #ffffff
-        background #00000000
-        inactive_workspace #00000000 #00000000 #aaaaaa
-    }
+input "type:keyboard" {
+    xkb_layout us,hr
+    xkb_options "grp:win_space_toggle"
 }
+
+bar { 
+     swaybar_command waybar
+}
+
+for_window [class="UnknownPleasures"] fullscreen enable
 
 include /etc/sway/config.d/*
